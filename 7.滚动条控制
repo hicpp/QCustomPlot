@@ -1,0 +1,49 @@
+QScrollBar::valueChanged(int)和QCPAxis::rangeChanged(QCPRange)
+由于我们希望保持正常范围拖动和缩放，因此必须在rangeChanged发出轴信号时更新滚动条滑块位置和大小。
+QScrollBar是基于整数的。因此，我们需要一个将整数滚动条值转换为轴坐标的因子。例如，如果我们希望能够在-5到5的坐标范围内平滑地滚动轴，我们可以将因子设置为0.01（即将滚动条值除以100），从而将滚动条的范围设置为-500 ..500。
+如果可访问的坐标范围在任何点都会改变，只需更改滚动条的最大/最小值即可。
+
+ui->horizontalScrollBar->setRange(-500, 500);
+ui->verticalScrollBar->setRange(-500, 500);
+
+connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(horzScrollBarChanged(int)));
+connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vertScrollBarChanged(int)));
+connect(ui->plot->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(xAxisChanged(QCPRange)));
+connect(ui->plot->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChanged(QCPRange)));
+
+坐标转换槽
+void MainWindow::horzScrollBarChanged(int value)
+{
+  if (qAbs(ui->plot->xAxis->range().center()-value/100.0) > 0.01) // if user is dragging plot, we don't want to replot twice
+  {
+    ui->plot->xAxis->setRange(value/100.0, ui->plot->xAxis->range().size(), Qt::AlignCenter);
+    ui->plot->replot();
+  }
+}
+ 
+void MainWindow::vertScrollBarChanged(int value)
+{
+  if (qAbs(ui->plot->yAxis->range().center()+value/100.0) > 0.01) // if user is dragging plot, we don't want to replot twice
+  {
+    ui->plot->yAxis->setRange(-value/100.0, ui->plot->yAxis->range().size(), Qt::AlignCenter);
+    ui->plot->replot();
+  }
+}
+
+void MainWindow::xAxisChanged(QCPRange range)
+{
+  ui->horizontalScrollBar->setValue(qRound(range.center()*100.0)); // adjust position of scroll bar slider
+  ui->horizontalScrollBar->setPageStep(qRound(range.size()*100.0)); // adjust size of scroll bar slider
+}
+ 
+void MainWindow::yAxisChanged(QCPRange range)
+{
+  ui->verticalScrollBar->setValue(qRound(-range.center()*100.0)); // adjust position of scroll bar slider
+  ui->verticalScrollBar->setPageStep(qRound(range.size()*100.0)); // adjust size of scroll bar slider
+}
+
+有两件事值得一提：
+
+首先，我们在这里看到value通过除以滚动条到轴坐标的转换100.0。另请注意，当滑块位于顶部时，垂直滚动条的值较低，而当滑块位于底部时，垂直滚动条的值较大。对于绘图轴，这是另一种方式，这就是为什么在包含value垂直滚动条的表达式中添加减号，例如在设置yAxis范围时。
+
+条件qAbs(ui->plot->xAxis->range().center()-value/100.0) > 0.01是必要的，使得范围拖动不会导致由重置信号和插槽之间来回引起的双重重定位。这可能发生，因为在范围拖动时，QCustomPlot会自动重新插入并发出rangeChanged拖动轴的信号。在这个应用程序中，rangeChanged信号将调用插槽xAxisChanged或yAxisChanged正如我们将看到的那样，通过调用滚动条的setValue方法更新滚动条滑块位置。这种方法反过来会发出滚动条valueChanged信号连接到上面的插槽。如果检查不到位，那么第二个重绘就会发生。检查确保仅在当前轴范围实际上与新（转换的）滚动条值不同时才执行重新绘制。如果用户拖动轴范围，则不是这种情况，因此会跳过冗余重新绘制和轴范围更新。
