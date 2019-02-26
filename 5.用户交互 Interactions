@@ -1,0 +1,24 @@
+QCustomPlot提供多个内置用户交互：
+customPlot->setInteraction(QCP::iRangeDrag, true)设置允许的交互。
+QCP::iRangeDrag：范围内拖动。
+只允许在一个方向上拖动：QCPAxisRect::setRangeDrag 并指定 Qt::Vertical 或 Qt::Horizontal。
+拖动期间，通过QCPAxisRect::setRangeDragAxes设置的坐标轴会实时更新显示的范围。
+QCP::iRangeZoom：放大缩小绘图。需QCustomPlot::setInteraction激活。
+指定方向:QCPAxisRect::setRangeZoomAxes 和 QCPAxisRect::setRangeZoom。
+QCPAxisRect::setRangeZoomFactor：设置缩放强度。
+设置可选：以QCP::iSelect开头。如customPlot->setInteraction(QCP::iSelectPlottables, true)，表示当前图像可选择。
+设置多选：以QCP::iMultiSelect开头。多选快捷键：QCustomPlot::setMultiSelectModifier，默认Ctrl。
+选择微调：setSelectable。
+删除所有图像：QCustomPlot::deselectAll。
+设置笔、画刷及字体
+QCPGraph::setSelectedPen, QCPGraph::setSelectedBrush, 
+QCPAxis::setSelectedLabelFont, QCPAxis::setSelectedBasePen, 
+QCPItemText::setSelectedColor
+包含多个部件的对象，如QCPAxis包含轴、刻度、轴标签。
+要使轴和刻度可选，轴标签不可选：theAxis->setSelectableParts(QCPAxis::spAxis|QCP::spTickLabels)
+每个被选择的对象都会触发selectionChanged信号。用户交互触发QCustomPlot::selectionChangedByUser。
+选择信号：QCustomPlot::selectedPlottables, selectedItems, selectedAxes, selectedLegends
+用户交互信号，与选择机制无关。
+QCustomPlot::mouseDoubleClick, mousePress, mouseMove, mouseRelease, mouseWheel
+复杂的用户交互建议子类化QCustomPlot，重写事件。
+单击和双击信号：QCustomPlot::plottableClick, plottableDoubleClick, itemClick, itemDoubleClick, axisClick, axisDoubleClick, legendClick, legendDoubleClick, titleClick, titleDoubleClick

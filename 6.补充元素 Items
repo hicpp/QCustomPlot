@@ -1,0 +1,3 @@
+QCustomPlot允许在绘图上放置和锚定图形元素，如文本、箭头、线条、矩形、任意像素地图等。它们基于抽象基类QCPAbstractItem。
+剪切：默认只剪切可见区域，坐标轴外的需setClipToAxisRect(false)
+剪切不同的轴：setClipAxisRect

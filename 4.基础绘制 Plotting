@@ -1,0 +1,38 @@
+通过customPlot->addGraph()来创建新图形。
+通过customPlot->graph(0)->setData()来分配一些数据点。
+对于x，y（键值），以QVector<double>来分配。在QCustomPlot中坐标轴以key axis和value axis来表示，不使用x，y。
+QCustomPlot有四个轴（QCPAxis）customPlot->xAxis, yAxis, xAxis2, yAxis2。
+通过customPlot->xAxis->setRange(-1, 1)来定义显示范围。
+绘图需要更新时，调用customPlot->replot()。调整大小、交互时会自动触发。
+
+坐标刻度会由坐标轴自动生成，它属于QCPAxisTicker类，可以通过xAxis->ticker()来访问。
+xAxis->ticker()->setTickCount(6)设置最大刻度。
+默认自动处理边距（坐标文本自动调整到坐标轴区域里），可以使用customPlot->axisRect()->setAutoMargins(QCP::msNone)取消。customPlot->axisRect()->setMargins()手动设置边距。
+
+样式修改：
+图表----
+线条样式：graph->setLineStyle()
+线条：graph->setPen()
+点样式：graph->setScatterStyle()
+填充颜色：graph->setBrush()，graph->setChannelFillGraph(otherGraph)两个图形间填充，取消填充graph->setBrush(Qt::NoBrush)
+坐标轴----QCPAxis 
+setBasePen 
+setTickPen, setTickLength 刻度
+setSubTickLength, setSubTickPen 子刻度
+setTickLabelFont, setLabelFont, setTickLabelPadding, setLabelPadding  标签文字
+setRangeReversed  反转
+setLowerEnding，setUpperEnding 箭头
+网格线----QCPGrid 
+customPlot->yAxis->grid() 获取value轴网格
+yAxis->grid()->setPen() 网格线
+setZeroLinePen 起点
+默认子网格线不显示，grid()->setSubGridVisible(true)
+
+
+QCPGraph：这是我们一直使用的可绘图类。将一系列数据点显示为具有不同线条样式、填充和散点的图形。
+QCPCurve：用于显示参数曲线。
+QCPBars：条形图。
+QCPStatisticalBox：统计框图。
+QCPColorMap：颜色梯度。 QCPColorScale：缩放。
+QCPFinancial：蜡烛图或OHLC。
+QCPErrorBars：
