@@ -1,0 +1,6 @@
+使用步骤：
+1.将qcustomplot.h和qcustomplot.cpp加入到项目中
+2.Qt5.0以上版本添加Prints Support模块
+3.提升QWidget控件
+    1> Promote to...
+    2> 类名QCustomPlot
